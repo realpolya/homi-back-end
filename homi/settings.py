@@ -11,8 +11,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 import os # brings in operating system
-from dotenv import load_dotenv
-load_dotenv() # load environment variables
+# from dotenv import load_dotenv
+# load_dotenv() # load environment variables
 
 from pathlib import Path
 from datetime import timedelta
