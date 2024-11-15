@@ -1,12 +1,12 @@
 PROPERTY_TYPE = (
-        'Entire Place',
-        'Private Room',
-        'Shared Room',
-        'Vacation Home',
-        'Loft',
-        'Hostel',
-        'Mansion',
-        'Villa',
-        'Castle',
-        'Luxury Apartment'
-    )
+    ('EN', 'Entire Place'),
+    ('PR', 'Private Room'),
+    ('SH', 'Shared Room'),
+    ('VA', 'Vacation Home'),
+    ('LO', 'Loft'),
+    ('HO', 'Hostel'),
+    ('MA', 'Mansion'),
+    ('VI', 'Villa'),
+    ('CA', 'Castle'),
+    ('LU', 'Luxury Apartment'),
+)
