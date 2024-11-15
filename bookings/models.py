@@ -1,5 +1,6 @@
 from django.db import models
 
+
 # Create your models here.
 class Booking (models.Model):
     property = models.ForeignKey(Property, on_delete=models.CASCADE)
