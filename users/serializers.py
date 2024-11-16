@@ -31,13 +31,18 @@ class UserSerializer(serializers.ModelSerializer):
         return user
     
     def update(self, instance, validated_data):
+        #this is all the properties that just belong to the profile model
         profile_data = validated_data.pop('profile', None)
+
+
         instance.username = validated_data.get('username', instance.username)
         instance.email = validated_data.get('email', instance.email)
         if 'password' in validated_data:
             instance.set_password(validated_data['password'])
         instance.save()
 
+
+        #this is if we are requesting the profile data immediately at sign in. will retreive data, otherwise it'll create the profile model 
         if profile_data:
             profile, created = Profile.objects.get_or_create(user=instance)
             for key, value in profile_data.items():
