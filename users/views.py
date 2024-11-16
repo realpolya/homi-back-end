@@ -46,7 +46,7 @@ class VerifyUserView(APIView):
   permission_classes = [permissions.IsAuthenticated]
 
   def get(self, request):
-    user = request.user
+    user: str = request.user
 
     #Need a try to populate the profile if available
     try: 
@@ -69,6 +69,7 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
 
    def get(self,request,*args,**kwargs):
       user = request.user
+ 
 
       user_serializer = UserSerializer(user)
 
@@ -87,7 +88,7 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
       user = request.user
       data = request.data
 
-      user_serializer = UserSerializer
+      user_serializer = UserSerializer(user, data=data, partial=True)
       if user_serializer.is_valid():
           user_serializer.save()
 
@@ -97,14 +98,14 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
               profile = None
 
           if profile: #This is again to confirm if profile exists already within the User. 
-              profile_serializer = ProfileSerializer(profile)
+              profile_serializer = ProfileSerializer(profile, data=data, partial=True)
               if profile_serializer.is_valid():
                   profile_serializer.save()
               else:
                   return Response(profile_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
           else:
               # If no profile exists, create a new one with the given data
-              profile_serializer = ProfileSerializer(data=data)
+              profile_serializer = ProfileSerializer(data=data, partial=True)
               if profile_serializer.is_valid():
                   profile_serializer.save(user=user)
               else:
