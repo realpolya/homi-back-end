@@ -87,7 +87,7 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
       user = request.user
       data = request.data
 
-      user_serializer = UserSerializer(user, data=data, partial=True)
+      user_serializer = UserSerializer
       if user_serializer.is_valid():
           user_serializer.save()
 
@@ -96,8 +96,8 @@ class UserProfileView(generics.RetrieveUpdateAPIView):
           except Profile.DoesNotExist:
               profile = None
 
-          if profile:
-              profile_serializer = ProfileSerializer(profile, data=data, partial=True)
+          if profile: #This is again to confirm if profile exists already within the User. 
+              profile_serializer = ProfileSerializer(profile)
               if profile_serializer.is_valid():
                   profile_serializer.save()
               else:
