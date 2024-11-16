@@ -1,7 +1,17 @@
 from django.contrib import admin
+from django.contrib.postgres.fields import ArrayField
 from django import forms
-from .models import Property, Address
+from .models import Property, Photo, Address
 from .amenities import AMENITIES
+
+class PhotoInline(admin.TabularInline):
+    model = Photo
+    extra = 5
+
+class AddressInline(admin.StackedInline):
+    model = Address
+    extra = 1
+    max_num = 1
 
 class PropertyAdminForm(forms.ModelForm):
     amenities = forms.MultipleChoiceField(
@@ -16,6 +26,6 @@ class PropertyAdminForm(forms.ModelForm):
 
 class PropertyAdmin(admin.ModelAdmin):
     form = PropertyAdminForm
+    inlines = [PhotoInline, AddressInline]
 
 admin.site.register(Property, PropertyAdmin)
-admin.site.register(Address)

@@ -12,3 +12,6 @@ class Booking (models.Model):
     message = models.TextField()
     number_of_guests = models.IntegerField()
     credit_card = models.IntegerField(default=0000000000000000)
+
+    def __str__(self):
+        return f'{self.prop.title} booked from {self.check_in_date} to {self.check_out_date}'
