@@ -2,7 +2,8 @@ from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth.models import User
 
-from .amenities import AMENITIES
+from amenities.models import Amenity
+
 from .states import STATES
 from .property_type import PROPERTY_TYPE
 from .cancellation import CANCELLATION
@@ -19,15 +20,13 @@ class Property(models.Model):
         choices=PROPERTY_TYPE,
         default=PROPERTY_TYPE[0] 
     )
-    amenities = ArrayField(
-            models.CharField(max_length=90, choices=AMENITIES), 
-            blank=True
-    )
+    amenities = models.ManyToManyField(Amenity)
     is_active = models.BooleanField(default=True)
     cleaning_fee = models.IntegerField(default=0)
     cancellation_policy = models.CharField(
         max_length=20,
-        choices=CANCELLATION
+        choices=CANCELLATION,
+        default=CANCELLATION[0] 
     )
     
     def __str__(self):

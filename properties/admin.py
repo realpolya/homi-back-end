@@ -2,7 +2,6 @@ from django.contrib import admin
 from django.contrib.postgres.fields import ArrayField
 from django import forms
 from .models import Property, Photo, Address
-from .amenities import AMENITIES
 
 class PhotoInline(admin.TabularInline):
     model = Photo
@@ -14,11 +13,6 @@ class AddressInline(admin.StackedInline):
     max_num = 1
 
 class PropertyAdminForm(forms.ModelForm):
-    amenities = forms.MultipleChoiceField(
-        choices=AMENITIES,
-        widget=forms.CheckboxSelectMultiple,
-        required=False,
-    )
 
     class Meta:
         model = Property
