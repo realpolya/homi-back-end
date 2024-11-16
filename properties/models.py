@@ -20,7 +20,7 @@ class Property(models.Model):
         default=PROPERTY_TYPE[0] 
     )
     amenities = ArrayField(
-            models.CharField(max_length=50, choices=AMENITIES), 
+            models.CharField(max_length=90, choices=AMENITIES), 
             blank=True
     )
     is_active = models.BooleanField(default=True)
