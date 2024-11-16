@@ -20,7 +20,7 @@ class Property(models.Model):
         default=PROPERTY_TYPE[0] 
     )
     amenities = ArrayField(
-            models.CharField(max_length=50, choices=AMENITIES), 
+            models.CharField(max_length=90, choices=AMENITIES), 
             blank=True
     )
     is_active = models.BooleanField(default=True)
@@ -29,14 +29,17 @@ class Property(models.Model):
         max_length=20,
         choices=CANCELLATION
     )
-    photos = ArrayField(
-        models.URLField(max_length=200),
-        blank=True
-    )
-
+    
     def __str__(self):
         return self.title
 
+class Photo(models.Model):
+    prop = models.ForeignKey(
+        Property, 
+        on_delete=models.CASCADE, 
+        related_name='photos'
+    )
+    link = models.URLField(max_length=300)
 
 class Address(models.Model):
     prop = models.OneToOneField(Property, on_delete=models.CASCADE)
