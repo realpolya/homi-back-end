@@ -1,6 +1,10 @@
 # tuple of tuples for amenities
 # https://www.reshot.com/
 
+# currently not used anywhere
+# this file exists just for reference
+# use ../amenities.sql if you want to seed data into the db
+
 AMENITIES = (
     ("https://www.reshot.com/preview-assets/icons/VJLXFPZWAB/water-heating-VJLXFPZWAB.svg", "Heating"),
     ("https://www.reshot.com/preview-assets/icons/5MUHFP6QBZ/air-conditioning-5MUHFP6QBZ.svg", "Air Conditioning"),
