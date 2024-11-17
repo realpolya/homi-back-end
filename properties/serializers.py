@@ -8,16 +8,17 @@ class AddressSerializer(serializers.ModelSerializer):
         model = Address
         fields = '__all__'
 
-class PropertySerializer(serializers.ModelSerializer):
-    amenities = AmenitySerializer(many=True, read_only=True)
-    address = AddressSerializer(read_only=True)
-
-    class Meta:
-        model = Property
-        fields = '__all__'
-
 class PhotoSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Photo
+        fields = '__all__'
+
+class PropertySerializer(serializers.ModelSerializer):
+    amenities = AmenitySerializer(many=True, read_only=True)
+    address = AddressSerializer(read_only=True)
+    photos = PhotoSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Property
         fields = '__all__'
