@@ -1,12 +1,13 @@
-from users.serializers import UserSerializer
+
 from rest_framework import serializers
 from .models import Booking
-from amenities.models import Amenity
-
+from users.serializers import UserSerializer
+from properties.seralizers import PropertySerializer
 
 
 class BookingSerializer(serializers.ModelSerializer):
     guest = UserSerializer(read_only=True)  
+    prop = PropertySerializer(read_only=True)
 
     class Meta:
         model = Booking
@@ -22,6 +23,7 @@ class BookingSerializer(serializers.ModelSerializer):
             'credit_card'
         ]
 
+    #Checker in backend side to be able to store CC with only showing last 4 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         credit_card = str(representation.get('credit_card'))
