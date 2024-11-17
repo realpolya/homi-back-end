@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from django.db import transaction
 from django.core.exceptions import ValidationError
 
+from django.contrib.auth.models import User
 from .models import Property, Address, Photo
 from amenities.models import Amenity
 from .serializers import PropertySerializer
@@ -39,6 +40,7 @@ class PropertiesList(generics.ListCreateAPIView):
                 for photo in photos_data:
                     Photo.objects.create(prop=property_instance, **photo)
 
+
 class PropertiesOne(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = PropertySerializer
     queryset = Property.objects.all()
@@ -51,9 +53,31 @@ class PropertiesOne(generics.RetrieveUpdateDestroyAPIView):
         return super().get_permissions() # default set specified above
 
 
+class PropertiesUser(generics.ListAPIView):
+    serializer_class = PropertySerializer
+
+    def get_queryset(self):
+        user_id = self.kwargs.get('user_id')
+
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Property.objects.none()
+        
+        return Property.objects.filter(user=user)
+
+
+class PropertiesMine(generics.ListAPIView):
+    serializer_class = PropertySerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        return Property.objects.filter(user=user)
 
 
 __all__ = [
     "PropertiesList",
-    "PropertiesOne"
+    "PropertiesOne",
+    "PropertiesUser",
+    "PropertiesMine"
 ]
