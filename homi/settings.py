@@ -18,8 +18,8 @@ from pathlib import Path
 from datetime import timedelta
 
 # access environment variables
-#SECRET_KEY = os.getenv('SECRET_KEY')
-#DEBUG = os.getenv('DEBUG')
+GOOGLE_KEY = os.getenv('GOOGLE_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,9 +27,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-o@t@@dipz(cieagccj5(@y!tw4^@4p)(30co10b@q&_d3mgif-'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
