@@ -23,7 +23,7 @@ class BookingsList(generics.ListAPIView):
 
 
 class BookingsNew(generics.CreateAPIView):
-    '''User creating new booking'''
+    '''User creates new booking'''
     serializer_class = BookingSerializer
     permission_classes = [IsAuthenticated]
 
