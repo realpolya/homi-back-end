@@ -2,8 +2,6 @@
 
 
 from rest_framework import generics, permissions
-from rest_framework.response import Response
-from rest_framework.views import APIView
 from django.utils.timezone import now
 from .models import Booking
 from .serializers import BookingSerializer
@@ -24,3 +22,11 @@ class BookingAPIView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = BookingSerializer
     #only those that are authenticated can also view and update their booking
     permission_classes = [permissions.IsAuthenticated]
+
+
+class UpcomingBookingsAPIView(generics.ListAPIView):
+    serializer_class = BookingSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Booking.objects.filter(guest=self.request.user, check_in_date__gte=now())
