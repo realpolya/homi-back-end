@@ -35,3 +35,15 @@ class PropertiesList(generics.ListCreateAPIView):
             if photos_data:
                 for photo in photos_data:
                     Photo.objects.create(prop=property_instance, **photo)
+
+class PropertiesOne(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = PropertySerializer
+    queryset = Property.objects.all()
+    lookup_field = 'id'
+
+
+
+__all__ = [
+    "PropertiesList",
+    "PropertiesOne"
+]
