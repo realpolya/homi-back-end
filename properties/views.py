@@ -12,6 +12,7 @@ from .serializers import PropertySerializer
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsAuthorized
 
+
 class PropertiesList(generics.ListCreateAPIView):
     serializer_class = PropertySerializer
     queryset = Property.objects.all()
