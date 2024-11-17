@@ -8,6 +8,9 @@ from .models import Property, Address, Photo
 from amenities.models import Amenity
 from .serializers import PropertySerializer
 
+from rest_framework.permissions import IsAuthenticated
+from .permissions import IsAuthorized
+
 class PropertiesList(generics.ListCreateAPIView):
     serializer_class = PropertySerializer
     queryset = Property.objects.all()
@@ -35,3 +38,22 @@ class PropertiesList(generics.ListCreateAPIView):
             if photos_data:
                 for photo in photos_data:
                     Photo.objects.create(prop=property_instance, **photo)
+
+class PropertiesOne(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = PropertySerializer
+    queryset = Property.objects.all()
+    lookup_field = 'id'
+    permission_classes = [IsAuthenticated, IsAuthorized]
+
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [] # empty set of permissions
+        return super().get_permissions() # default set specified above
+
+
+
+
+__all__ = [
+    "PropertiesList",
+    "PropertiesOne"
+]
