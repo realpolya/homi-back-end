@@ -2,7 +2,7 @@
 from rest_framework import serializers
 from .models import Booking
 from users.serializers import UserSerializer
-from properties.seralizers import PropertySerializer
+from properties.serializers import PropertySerializer
 
 
 class BookingSerializer(serializers.ModelSerializer):
