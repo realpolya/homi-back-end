@@ -1,4 +1,3 @@
-
 from rest_framework import serializers
 from .models import Booking
 from users.serializers import UserSerializer
