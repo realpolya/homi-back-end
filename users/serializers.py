@@ -13,7 +13,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'password', 'profile')
+        fields = ('id', 'username', 'email', 'password', 'first_name','last_name', 'profile')
 
     def create(self, validated_data):
         user = User.objects.create_user(
@@ -40,6 +40,8 @@ class UserSerializer(serializers.ModelSerializer):
         if 'password' in validated_data:
             instance.set_password(validated_data['password'])
         instance.save()
+        instance.first_name = validated_data.get('first_name', instance.first_name)
+        instance.last_name = validated_data.get('last_name', instance.last_name)       
 
 
         #this is if we are requesting the profile data immediately at sign in. will retreive data, otherwise it'll create the profile model 
