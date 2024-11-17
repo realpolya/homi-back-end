@@ -63,6 +63,7 @@ class BookingsOne(generics.RetrieveUpdateDestroyAPIView):
     Only the guest can modify the booking'''
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
+    lookup_field = 'id'
     permission_classes = [IsAuthenticated]
     #TODO: add IsAuthorized for both guest and host
 
