@@ -41,7 +41,11 @@ class Photo(models.Model):
     link = models.URLField(max_length=300)
 
 class Address(models.Model):
-    prop = models.OneToOneField(Property, on_delete=models.CASCADE)
+    prop = models.OneToOneField(
+        Property, 
+        on_delete=models.CASCADE,
+        related_name='address'
+    )
     street = models.CharField(max_length=250)
     city = models.CharField(max_length=250)
     state = models.CharField(
