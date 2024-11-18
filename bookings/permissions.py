@@ -1,4 +1,5 @@
 from rest_framework.permissions import BasePermission
+from properties.models import Property
 
 # is the user authorized to modify the booking?
 class IsAuthorizedGuestHost(BasePermission):
@@ -18,3 +19,19 @@ class IsAuthorizedGuest(BasePermission):
             return False
         
         return obj.guest == request.user
+
+class IsAuthorizedHost(BasePermission):
+
+    def has_permission(self, request, view):
+
+        print('inside isAuthorizedHost')
+        prop_id = view.kwargs.get('prop_id')
+        if not prop_id:
+            return False
+
+        try:
+            prop_obj = Property.objects.get(id=prop_id)
+        except Property.DoesNotExist:
+            return False
+        
+        return prop_obj.user == request.user

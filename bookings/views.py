@@ -17,7 +17,7 @@ from .serializers import BookingSerializer
 from .utils import get_availability
 
 from rest_framework.permissions import IsAuthenticated
-from .permissions import IsAuthorizedGuestHost, IsAuthorizedGuest
+from .permissions import IsAuthorizedGuestHost, IsAuthorizedGuest, IsAuthorizedHost
 
 
 class BookingsList(generics.ListAPIView):
@@ -174,10 +174,24 @@ class BookingsHost(generics.ListAPIView):
         return queryset
 
 
+
+class BookingsProperty(generics.ListAPIView):
+    '''Bookings of a particular property.'''
+    serializer_class = BookingSerializer
+    permission_classes = [IsAuthenticated, IsAuthorizedHost]
+
+    def get_queryset(self):
+        prop_id = self.kwargs.get('prop_id')
+        queryset = Booking.objects.filter(prop_id=prop_id)
+        return queryset
+
+
+
 __all__ = [
     "BookingsList",
     "BookingsNew",
     "UpcomingBookings",
     "BookingsOne",
-    "BookingsHost"
+    "BookingsHost",
+    "BookingsProperty"
 ]
