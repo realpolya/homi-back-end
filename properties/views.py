@@ -17,6 +17,8 @@ class PropertiesList(generics.ListCreateAPIView):
     serializer_class = PropertySerializer
     queryset = Property.objects.all()
 
+    # TODO: filter, sort, search
+
     # override super class method
     def perform_create(self, serializer):
         address_data = self.request.data.get('address')
@@ -75,6 +77,7 @@ class PropertiesMine(generics.ListAPIView):
         user = self.request.user
         return Property.objects.filter(user=user)
 
+# TODO: get archived properties
 
 __all__ = [
     "PropertiesList",
