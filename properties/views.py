@@ -21,6 +21,7 @@ import googlemaps
 class PropertiesList(generics.ListCreateAPIView):
     serializer_class = PropertySerializer
     queryset = Property.objects.all()
+    # TODO: filter, sort, search
 
     def get_coordinates(self, address_string):
         '''obtain latitude and longitude'''
@@ -38,6 +39,7 @@ class PropertiesList(generics.ListCreateAPIView):
         lng = geo1.get('lng')
         coordinates = [lat, lng]
         return coordinates
+
 
     # override super class method
     def perform_create(self, serializer):
@@ -108,6 +110,7 @@ class PropertiesMine(generics.ListAPIView):
         user = self.request.user
         return Property.objects.filter(user=user)
 
+# TODO: get archived properties
 
 __all__ = [
     "PropertiesList",
