@@ -1,6 +1,6 @@
 from rest_framework.permissions import BasePermission
 
-# is the user authorized to modify the property listing?
+# is the user authorized to modify the booking?
 class IsAuthorized(BasePermission):
 
     def has_object_permission(self, request, view, obj):

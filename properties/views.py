@@ -24,8 +24,15 @@ from django.utils.dateparse import parse_date
 
 
 class PropertiesList(generics.ListCreateAPIView):
+    '''get list of properties, including filtered / sorted version, create new property, calculate coordinates for address'''
+    
     serializer_class = PropertySerializer
     permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [] # empty set of permissions
+        return super().get_permissions() # default set specified above
 
     def get_queryset(self):
 
@@ -56,7 +63,7 @@ class PropertiesList(generics.ListCreateAPIView):
 
 
     def get_available_props(self, queryset, start_date, end_date):
-
+        '''obtain available properties based on the requested dates'''
         avail_start_date = parse_date(start_date)
         avail_end_date = parse_date(end_date)
 
@@ -75,12 +82,6 @@ class PropertiesList(generics.ListCreateAPIView):
         available_props = queryset.exclude(id__in=overlapping_bookings)
         
         return available_props
-
-
-    def get_permissions(self):
-        if self.request.method == 'GET':
-            return [] # empty set of permissions
-        return super().get_permissions() # default set specified above
 
     def get_coordinates(self, address_string):
         '''obtain latitude and longitude'''
@@ -134,6 +135,7 @@ class PropertiesList(generics.ListCreateAPIView):
 
 
 class PropertiesOne(generics.RetrieveUpdateDestroyAPIView):
+    '''get single property, update and delete the property if authorized'''
     serializer_class = PropertySerializer
     queryset = Property.objects.all()
     lookup_field = 'id'
@@ -146,6 +148,7 @@ class PropertiesOne(generics.RetrieveUpdateDestroyAPIView):
 
 
 class PropertiesArchived(generics.ListAPIView):
+    '''get archived properties corresponding to the logged in user'''
     serializer_class = PropertySerializer
     permission_classes = [IsAuthenticated]
 
@@ -155,6 +158,7 @@ class PropertiesArchived(generics.ListAPIView):
 
 
 class PropertiesUser(generics.ListAPIView):
+    '''get listed properties corresponding to the requested user'''
     serializer_class = PropertySerializer
 
     def get_queryset(self):
@@ -170,6 +174,7 @@ class PropertiesUser(generics.ListAPIView):
 
 
 class PropertiesMine(generics.ListAPIView):
+    '''get listed properties corresponding to the logged in user'''
     serializer_class = PropertySerializer
     permission_classes = [IsAuthenticated]
 

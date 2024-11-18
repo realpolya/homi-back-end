@@ -16,10 +16,11 @@ from .permissions import IsAuthorized
 
 class BookingsList(generics.ListAPIView):
     '''Guest's bookings. Only a guest can view their bookings.'''
-    queryset = Booking.objects.all()
     serializer_class = BookingSerializer
     permission_classes = [IsAuthenticated]
-    #TODO: add IsAuthorized
+
+    def get_queryset(self):
+        queryset = Booking.objects.filter(guest=self.request.user)
 
 
 class BookingsNew(generics.CreateAPIView):
