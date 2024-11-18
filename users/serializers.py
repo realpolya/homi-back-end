@@ -11,25 +11,24 @@ class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     profile = ProfileSerializer(required=False) #leaving this as false since the profile info isn't necessary to sign up
 
+
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'password', 'first_name','last_name', 'profile')
 
+    
     def create(self, validated_data):
         user = User.objects.create_user(
-            username= validated_data['username'],
+            username=validated_data['username'],
             email=validated_data['email'],
             password=validated_data['password']
         )
 
-        #if we end up asking for additional info when creating user, this helps separate them in the model
-        profile_data = validated_data.pop('profile',None)
-
-        if profile_data: # If we make it a requirement for users to provide the additional info to begin with, it will create the data already within the sign up
-            Profile.objects.create(user=user, **profile_data)
-
+        # automatically create a profile for each user that signs up
+        Profile.objects.create(user=user)
         return user
     
+
     def update(self, instance, validated_data):
         #this is all the properties that just belong to the profile model
         profile_data = validated_data.pop('profile', None)

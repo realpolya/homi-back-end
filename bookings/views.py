@@ -9,6 +9,7 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 
 from .models import Booking
 from properties.models import Property
+from users.models import Profile
 from .serializers import BookingSerializer
 
 from rest_framework.permissions import IsAuthenticated
@@ -69,12 +70,18 @@ class BookingsNew(generics.CreateAPIView):
         if number_of_guests > listing.max_guests:
             raise ValidationError("Maximum number of guests is exceeded")
 
-        #TODO: Check if anyone else has already booked the property
         availability_check = self.get_availability(listing, check_in, check_out)
         if not availability_check:
             raise ValidationError("This property is already booked for the requested dates")
 
-        cost = listing.price_per_night * nights
+        nights_cost = listing.price_per_night * nights
+
+        # update host's profits
+        host_profile = Profile.objects.get(user=listing.user)
+        host_profile.profits += nights_cost
+        host_profile.save()
+
+        cost = nights_cost + listing.cleaning_fee
         serializer.save(guest=self.request.user, total_price=cost, prop=listing)
 
 
@@ -95,6 +102,8 @@ class BookingsOne(generics.RetrieveUpdateDestroyAPIView):
     lookup_field = 'id'
     permission_classes = [IsAuthenticated]
     #TODO: add IsAuthorized for both guest and host
+
+    #TODO: subtract from host's profits if booking is deleted
 
 #TODO: create a view for host to view bookings of their properties
 
