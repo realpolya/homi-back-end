@@ -20,8 +20,16 @@ import googlemaps
 
 class PropertiesList(generics.ListCreateAPIView):
     serializer_class = PropertySerializer
-    queryset = Property.objects.filter(is_active=True)
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = Property.objects.filter(is_active=True)
+
+        filter_where = self.request.GET.get('where')
+        if filter_where:
+            queryset = queryset.filter(address__address_string__icontains=filter_where)
+        
+        return queryset
 
     def get_permissions(self):
         if self.request.method == 'GET':

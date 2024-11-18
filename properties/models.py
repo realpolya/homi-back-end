@@ -48,8 +48,8 @@ class Address(models.Model):
         on_delete=models.CASCADE,
         related_name='address'
     )
-    street = models.CharField(max_length=250)
-    city = models.CharField(max_length=250)
+    street = models.CharField(max_length=100)
+    city = models.CharField(max_length=100)
     state = models.CharField(
         max_length=250,
         choices=STATES,
@@ -59,9 +59,14 @@ class Address(models.Model):
     country = models.CharField(max_length=20, default="USA")
     latitude = models.FloatField(default=0.0)
     longitude = models.FloatField(default=0.0)
+    address_string = models.CharField(max_length=250)
 
-    @property
-    def address_string(self):
-        return f"{self.street}, {self.city}, {self.state}, {self.country}"
+    def save(self, *args, **kwargs):
+        self.address_string = f"{self.street}, {self.city}, {self.get_state_display()}, {self.country}"
+        super().save(*args, **kwargs)
+
+    # @property
+    # def address_string(self):
+    #     return f"{self.street}, {self.city}, {self.state}, {self.country}"
 
 
