@@ -20,8 +20,7 @@ import googlemaps
 
 class PropertiesList(generics.ListCreateAPIView):
     serializer_class = PropertySerializer
-    queryset = Property.objects.all()
-
+    queryset = Property.objects.filter(is_active=True)
     permission_classes = [IsAuthenticated]
 
     def get_permissions(self):
@@ -94,6 +93,14 @@ class PropertiesOne(generics.RetrieveUpdateDestroyAPIView):
         return super().get_permissions() # default set specified above
 
 
+class PropertiesArchived(generics.ListAPIView):
+    serializer_class = PropertySerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Property.objects.filter(is_active=False,user=self.request.user)
+
+
 
 class PropertiesUser(generics.ListAPIView):
     serializer_class = PropertySerializer
@@ -106,22 +113,23 @@ class PropertiesUser(generics.ListAPIView):
         except User.DoesNotExist:
             return Property.objects.none()
         
-        return Property.objects.filter(user=user)
+        return Property.objects.filter(is_active=True,user=user)
 
 
 
 class PropertiesMine(generics.ListAPIView):
     serializer_class = PropertySerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
-        return Property.objects.filter(user=user)
+        return Property.objects.filter(is_active=True,user=user)
 
-# TODO: get archived properties
 
 __all__ = [
     "PropertiesList",
     "PropertiesOne",
+    "PropertiesArchived",
     "PropertiesUser",
-    "PropertiesMine"
+    "PropertiesMine",
 ]
