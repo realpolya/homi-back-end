@@ -9,6 +9,9 @@ from .models import Property, Address, Photo
 from amenities.models import Amenity
 from .serializers import PropertySerializer
 
+from bookings.models import Booking 
+from bookings.serializers import BookingSerializer
+
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsAuthorized
 
@@ -16,20 +19,61 @@ from .permissions import IsAuthorized
 from django.conf import settings
 import googlemaps
 
+from django.utils.dateparse import parse_date
+
 
 
 class PropertiesList(generics.ListCreateAPIView):
     serializer_class = PropertySerializer
-    queryset = Property.objects.all()
-
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = Property.objects.filter(is_active=True)
+
+        filter_where = self.request.GET.get('where')
+        if filter_where:
+            queryset = queryset.filter(address__address_string__icontains=filter_where)
+        
+        filter_type = self.request.GET.get('type')
+        if filter_type:
+            queryset = queryset.filter(property_type__iexact=filter_type)
+        
+        sort_type = self.request.GET.get('sort')
+        if sort_type:
+            if sort_type == "price":
+                queryset = queryset.order_by('price_per_night')
+            elif sort_type == "guests":
+                queryset = queryset.order_by('max_guests')
+        
+        return queryset
+
+
+    # TODO: find by available date
+    # def get_available_props(self, queryset, start_date, end_date):
+    #     available_props = []
+
+    #     avail_start_date = parse_date(start_date)
+    #     avail_end_date = parse_date(end_date)
+
+    #     # for each property
+    #     for query in queryset:
+    #         # find bookings that relate to property
+    #         bookings = Booking.objects.filter(prop_id=query.id)
+    #         bookings = bookings.filter(
+    #             check_in_date__gte=avail_start_date,
+    #             check_out_date__lte=avail_end_date
+    #         )
+    #         if len(bookings) >= 1:
+    #             break
+    #         available_props.append(query)
+        
+    #     return available_props
+
 
     def get_permissions(self):
         if self.request.method == 'GET':
             return [] # empty set of permissions
         return super().get_permissions() # default set specified above
-
-    # TODO: filter, sort, search
 
     def get_coordinates(self, address_string):
         '''obtain latitude and longitude'''
@@ -94,6 +138,14 @@ class PropertiesOne(generics.RetrieveUpdateDestroyAPIView):
         return super().get_permissions() # default set specified above
 
 
+class PropertiesArchived(generics.ListAPIView):
+    serializer_class = PropertySerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Property.objects.filter(is_active=False,user=self.request.user)
+
+
 
 class PropertiesUser(generics.ListAPIView):
     serializer_class = PropertySerializer
@@ -106,22 +158,23 @@ class PropertiesUser(generics.ListAPIView):
         except User.DoesNotExist:
             return Property.objects.none()
         
-        return Property.objects.filter(user=user)
+        return Property.objects.filter(is_active=True,user=user)
 
 
 
 class PropertiesMine(generics.ListAPIView):
     serializer_class = PropertySerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
-        return Property.objects.filter(user=user)
+        return Property.objects.filter(is_active=True,user=user)
 
-# TODO: get archived properties
 
 __all__ = [
     "PropertiesList",
     "PropertiesOne",
+    "PropertiesArchived",
     "PropertiesUser",
-    "PropertiesMine"
+    "PropertiesMine",
 ]
