@@ -4,6 +4,7 @@ logger = logging.getLogger(__name__)
 from rest_framework import generics
 from datetime import date
 from django.utils.timezone import now
+from django.utils.dateparse import parse_date
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 
 from .models import Booking
@@ -30,6 +31,25 @@ class BookingsNew(generics.CreateAPIView):
     permission_classes = [IsAuthenticated]
 
 
+    def get_availability(self, listing, check_in, check_out):
+        '''obtain availability of the requested property'''
+
+        if not check_in or not check_out:
+            raise ValueError("Invalid dates")
+        if check_in >= check_out:
+            raise ValueError("Check in date can't be later or equal to check out date")
+
+        overlapping_bookings = Booking.objects.filter(
+            prop_id=listing.id,
+            check_in_date__lte=check_out,
+            check_out_date__gte=check_in
+        )
+
+        if len(overlapping_bookings) != 0:
+            return False
+        
+        return True
+
 
     def perform_create(self, serializer):
 
@@ -41,8 +61,8 @@ class BookingsNew(generics.CreateAPIView):
             raise ValidationError("Property with this ID does not exist")
         
         # calculate total based on property's price
-        check_in = date.fromisoformat(self.request.data.get('check_in_date'))
-        check_out = date.fromisoformat(self.request.data.get('check_out_date'))
+        check_in = parse_date(self.request.data.get('check_in_date'))
+        check_out = parse_date(self.request.data.get('check_out_date'))
         nights = (check_out - check_in).days
 
         number_of_guests = self.request.data.get('number_of_guests')
@@ -50,6 +70,9 @@ class BookingsNew(generics.CreateAPIView):
             raise ValidationError("Maximum number of guests is exceeded")
 
         #TODO: Check if anyone else has already booked the property
+        availability_check = self.get_availability(listing, check_in, check_out)
+        if not availability_check:
+            raise ValidationError("This property is already booked for the requested dates")
 
         cost = listing.price_per_night * nights
         serializer.save(guest=self.request.user, total_price=cost, prop=listing)
