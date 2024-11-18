@@ -1,7 +1,7 @@
 import logging
 logger = logging.getLogger(__name__)
 
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.response import Response
 
 from datetime import date
@@ -145,10 +145,23 @@ class BookingsOne(generics.RetrieveUpdateDestroyAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=200)
+    
+    def delete(self, request, *args, **kwargs):
+        instance = self.get_object()
 
+        try:
+            listing = Property.objects.get(id=instance.prop_id)
+        except ObjectDoesNotExist:
+            raise ValidationError("Property with this ID does not exist")
+        
+        host_profile = Profile.objects.get(user=listing.user)
+        host_profile.profits -= instance.total_price
+        host_profile.profits += listing.cleaning_fee
+        host_profile.save()
 
+        self.perform_destroy(instance)
+        return Response({"message": "Object deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
 
-    #TODO: subtract from host's profits if booking is deleted
 
 #TODO: create a view for host to view bookings of their properties
 
