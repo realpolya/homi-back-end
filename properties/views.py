@@ -21,6 +21,14 @@ import googlemaps
 class PropertiesList(generics.ListCreateAPIView):
     serializer_class = PropertySerializer
     queryset = Property.objects.all()
+
+    permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [] # empty set of permissions
+        return super().get_permissions() # default set specified above
+
     # TODO: filter, sort, search
 
     def get_coordinates(self, address_string):
@@ -59,7 +67,6 @@ class PropertiesList(generics.ListCreateAPIView):
             if address_data:
                 new_address = Address.objects.create(prop=property_instance, **address_data)
 
-                # insert google maps geocoding below
                 try:
                     coordinates = self.get_coordinates(new_address.address_string)
                     new_address.latitude = coordinates[0]
