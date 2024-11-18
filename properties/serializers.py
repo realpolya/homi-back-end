@@ -16,9 +16,10 @@ class PhotoSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class PropertySerializer(serializers.ModelSerializer):
-    amenities = AmenitySerializer(many=True, read_only=True)
-    address = AddressSerializer(read_only=True)
-    photos = PhotoSerializer(many=True, read_only=True)
+
+    amenities = AmenitySerializer(many=True)
+    address = AddressSerializer()
+    photos = PhotoSerializer(many=True)
     first_photo = serializers.SerializerMethodField()
 
     class Meta:
