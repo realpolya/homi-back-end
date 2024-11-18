@@ -7,6 +7,7 @@ class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
         fields = '__all__'
+        read_only_fields = ('latitude', 'longitude')
 
 class PhotoSerializer(serializers.ModelSerializer):
     
@@ -22,3 +23,4 @@ class PropertySerializer(serializers.ModelSerializer):
     class Meta:
         model = Property
         fields = '__all__'
+        read_only_fields = ('user',)

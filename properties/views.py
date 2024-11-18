@@ -12,10 +12,32 @@ from .serializers import PropertySerializer
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsAuthorized
 
+# google maps
+from django.conf import settings
+import googlemaps
+
+
 
 class PropertiesList(generics.ListCreateAPIView):
     serializer_class = PropertySerializer
     queryset = Property.objects.all()
+
+    def get_coordinates(self, address_string):
+        '''obtain latitude and longitude'''
+        gmaps = googlemaps.Client(key=settings.GOOGLE_KEY)
+        geocode_result = gmaps.geocode(address_string)
+
+        # if address is invalid, return an error
+        if not geocode_result:
+            raise ValidationError("The address provided is invalid")
+        
+        # obtaining coordinates from the geocode function
+        geo = geocode_result[0].get('geometry')
+        geo1 = geo.get('location')
+        lat = geo1.get('lat')
+        lng = geo1.get('lng')
+        coordinates = [lat, lng]
+        return coordinates
 
     # override super class method
     def perform_create(self, serializer):
@@ -26,20 +48,29 @@ class PropertiesList(generics.ListCreateAPIView):
         amenities = Amenity.objects.filter(id__in=amenities_data)
         if len(amenities) != len(amenities_data):
             raise ValidationError("Some amenities are not found")
-
-        # insert google maps geocoding below
-
+    
         with transaction.atomic():
 
-            property_instance = serializer.save()
+            property_instance = serializer.save(user=self.request.user)
             property_instance.amenities.set(amenities)
 
             if address_data:
-                Address.objects.create(prop=property_instance, **address_data)
+                new_address = Address.objects.create(prop=property_instance, **address_data)
+
+                # insert google maps geocoding below
+                try:
+                    coordinates = self.get_coordinates(new_address.address_string)
+                    new_address.latitude = coordinates[0]
+                    new_address.longitude = coordinates[1]
+                except Exception as e:
+                    raise ValidationError(f"Geocoding failed: {str(e)}")
+                    
+                new_address.save()
             
             if photos_data:
                 for photo in photos_data:
                     Photo.objects.create(prop=property_instance, **photo)
+
 
 
 class PropertiesOne(generics.RetrieveUpdateDestroyAPIView):
@@ -54,6 +85,7 @@ class PropertiesOne(generics.RetrieveUpdateDestroyAPIView):
         return super().get_permissions() # default set specified above
 
 
+
 class PropertiesUser(generics.ListAPIView):
     serializer_class = PropertySerializer
 
@@ -66,6 +98,7 @@ class PropertiesUser(generics.ListAPIView):
             return Property.objects.none()
         
         return Property.objects.filter(user=user)
+
 
 
 class PropertiesMine(generics.ListAPIView):
