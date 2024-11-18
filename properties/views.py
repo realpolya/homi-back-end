@@ -19,8 +19,8 @@ from .permissions import IsAuthorized
 from django.conf import settings
 import googlemaps
 
+# available dates filter
 from django.utils.dateparse import parse_date
-
 
 
 class PropertiesList(generics.ListCreateAPIView):
@@ -28,6 +28,7 @@ class PropertiesList(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+
         queryset = Property.objects.filter(is_active=True)
 
         filter_where = self.request.GET.get('where')
@@ -44,30 +45,36 @@ class PropertiesList(generics.ListCreateAPIView):
                 queryset = queryset.order_by('price_per_night')
             elif sort_type == "guests":
                 queryset = queryset.order_by('max_guests')
+
+        start_date = self.request.GET.get('start_date')
+        end_date = self.request.GET.get('end_date')
+
+        if start_date and end_date:
+            queryset = self.get_available_props(queryset, start_date, end_date)
         
         return queryset
 
 
-    # TODO: find by available date
-    # def get_available_props(self, queryset, start_date, end_date):
-    #     available_props = []
+    def get_available_props(self, queryset, start_date, end_date):
 
-    #     avail_start_date = parse_date(start_date)
-    #     avail_end_date = parse_date(end_date)
+        avail_start_date = parse_date(start_date)
+        avail_end_date = parse_date(end_date)
 
-    #     # for each property
-    #     for query in queryset:
-    #         # find bookings that relate to property
-    #         bookings = Booking.objects.filter(prop_id=query.id)
-    #         bookings = bookings.filter(
-    #             check_in_date__gte=avail_start_date,
-    #             check_out_date__lte=avail_end_date
-    #         )
-    #         if len(bookings) >= 1:
-    #             break
-    #         available_props.append(query)
+        if not avail_start_date or not avail_end_date:
+            raise ValueError("Invalid dates")
+        if avail_start_date >= avail_end_date:
+            raise ValueError("Start date can't be later or equal to end date")
+
+        # find all overlapping bookings, extract the ids of the properties
+        overlapping_bookings = Booking.objects.filter(
+            check_in_date__lte=avail_end_date,
+            check_out_date__gte=avail_start_date
+        ).values_list('prop_id', flat=True)
+
+        # exclude those properties from the query
+        available_props = queryset.exclude(id__in=overlapping_bookings)
         
-    #     return available_props
+        return available_props
 
 
     def get_permissions(self):
