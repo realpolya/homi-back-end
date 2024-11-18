@@ -4,7 +4,7 @@ logger = logging.getLogger(__name__)
 from rest_framework import generics
 from datetime import date
 from django.utils.timezone import now
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 
 from .models import Booking
 from properties.models import Property
@@ -21,12 +21,15 @@ class BookingsList(generics.ListAPIView):
 
     def get_queryset(self):
         queryset = Booking.objects.filter(guest=self.request.user)
+        return queryset
 
 
 class BookingsNew(generics.CreateAPIView):
     '''User creates new booking'''
     serializer_class = BookingSerializer
     permission_classes = [IsAuthenticated]
+
+
 
     def perform_create(self, serializer):
 
@@ -42,7 +45,9 @@ class BookingsNew(generics.CreateAPIView):
         check_out = date.fromisoformat(self.request.data.get('check_out_date'))
         nights = (check_out - check_in).days
 
-        #TODO: Create check for maximum number of guests
+        number_of_guests = self.request.data.get('number_of_guests')
+        if number_of_guests > listing.max_guests:
+            raise ValidationError("Maximum number of guests is exceeded")
 
         #TODO: Check if anyone else has already booked the property
 
