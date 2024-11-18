@@ -13,7 +13,7 @@ from users.models import Profile
 from .serializers import BookingSerializer
 
 from rest_framework.permissions import IsAuthenticated
-from .permissions import IsAuthorized
+from .permissions import IsAuthorizedGuestHost, IsAuthorizedGuest
 
 
 class BookingsList(generics.ListAPIView):
@@ -100,8 +100,17 @@ class BookingsOne(generics.RetrieveUpdateDestroyAPIView):
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
     lookup_field = 'id'
-    permission_classes = [IsAuthenticated]
-    #TODO: add IsAuthorized for both guest and host
+    permission_classes = [IsAuthenticated, IsAuthorizedGuestHost]
+
+    def get_permissions(self):
+        # only guest can change or delete their booking
+        if self.request.method != 'GET':
+            return [IsAuthenticated(), IsAuthorizedGuest()]
+        # only guest and host can view the booking
+        return super().get_permissions()
+    
+    
+
 
     #TODO: subtract from host's profits if booking is deleted
 
