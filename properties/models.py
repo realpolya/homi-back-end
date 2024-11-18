@@ -32,6 +32,7 @@ class Property(models.Model):
     def __str__(self):
         return self.title
 
+
 class Photo(models.Model):
     prop = models.ForeignKey(
         Property, 
@@ -40,18 +41,32 @@ class Photo(models.Model):
     )
     link = models.URLField(max_length=300)
 
+
 class Address(models.Model):
-    prop = models.OneToOneField(Property, on_delete=models.CASCADE)
-    street = models.CharField(max_length=250)
-    city = models.CharField(max_length=250)
+    prop = models.OneToOneField(
+        Property, 
+        on_delete=models.CASCADE,
+        related_name='address'
+    )
+    street = models.CharField(max_length=100)
+    city = models.CharField(max_length=100)
     state = models.CharField(
         max_length=250,
         choices=STATES,
         default=STATES[0] 
     )
     zip_code = models.CharField(max_length=6)
-    country = models.CharField(max_length=20, default="United States")
+    country = models.CharField(max_length=20, default="USA")
     latitude = models.FloatField(default=0.0)
     longitude = models.FloatField(default=0.0)
+    address_string = models.CharField(max_length=250)
+
+    def save(self, *args, **kwargs):
+        self.address_string = f"{self.street}, {self.city}, {self.get_state_display()}, {self.country}"
+        super().save(*args, **kwargs)
+
+    # @property
+    # def address_string(self):
+    #     return f"{self.street}, {self.city}, {self.state}, {self.country}"
 
 
