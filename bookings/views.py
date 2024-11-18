@@ -35,6 +35,8 @@ class BookingsNew(generics.CreateAPIView):
     serializer_class = BookingSerializer
     permission_classes = [IsAuthenticated]
 
+
+
     def perform_create(self, serializer):
 
         # find associated property
@@ -86,6 +88,7 @@ class BookingsOne(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated, IsAuthorizedGuestHost]
 
 
+
     def get_permissions(self):
         # only guest can change or delete their booking
         if self.request.method != 'GET':
@@ -94,8 +97,8 @@ class BookingsOne(generics.RetrieveUpdateDestroyAPIView):
         return super().get_permissions()
     
 
-    def update(self, request, *args, **kwargs):
 
+    def update(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=kwargs.get('partial', False))
 
@@ -146,6 +149,8 @@ class BookingsOne(generics.RetrieveUpdateDestroyAPIView):
         serializer.save()
         return Response(serializer.data, status=200)
     
+
+
     def delete(self, request, *args, **kwargs):
         instance = self.get_object()
 
@@ -164,6 +169,7 @@ class BookingsOne(generics.RetrieveUpdateDestroyAPIView):
 
 
 #TODO: create a view for host to view bookings of their properties
+
 
 __all__ = [
     "BookingsList",
