@@ -6,4 +6,5 @@ urlpatterns = [
     path('upcoming/', UpcomingBookings.as_view(), name='upcoming-bookings'),
     path('new/<int:prop_id>/', BookingsNew.as_view(), name='bookings-new'),
     path('<int:id>/', BookingsOne.as_view(), name='bookings-one'),
+    path('host/', BookingsHost.as_view(), name='bookings-host')
 ]
