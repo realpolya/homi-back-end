@@ -9,6 +9,9 @@ from .models import Property, Address, Photo
 from amenities.models import Amenity
 from .serializers import PropertySerializer
 
+from bookings.models import Booking 
+from bookings.serializers import BookingSerializer
+
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsAuthorized
 
@@ -29,14 +32,36 @@ class PropertiesList(generics.ListCreateAPIView):
         if filter_where:
             queryset = queryset.filter(address__address_string__icontains=filter_where)
         
+        # TODO: filter, sort, search
+        filter_type = self.request.GET.get('type')
+        if filter_type:
+            queryset = queryset.filter(property_type__iexact=filter_type)
+        
+        sort_type = self.request.GET.get('sort')
+        if sort_type:
+            if sort_type == "price":
+                queryset = queryset.order_by('price_per_night')
+            elif sort_type == "guests":
+                queryset = queryset.order_by('max_guests')
+        
+        
         return queryset
+
+    # TODO: find by available date
+    # def get_availability(self, start_date, end_date):
+        # for each property
+
+        # find bookings that relate to property
+
+        # if queried period overlaps with any booking
+
+        # the property is excluded
+
 
     def get_permissions(self):
         if self.request.method == 'GET':
             return [] # empty set of permissions
         return super().get_permissions() # default set specified above
-
-    # TODO: filter, sort, search
 
     def get_coordinates(self, address_string):
         '''obtain latitude and longitude'''
