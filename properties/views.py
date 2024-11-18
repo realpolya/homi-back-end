@@ -19,6 +19,8 @@ from .permissions import IsAuthorized
 from django.conf import settings
 import googlemaps
 
+from django.utils.dateparse import parse_date
+
 
 
 class PropertiesList(generics.ListCreateAPIView):
@@ -32,7 +34,6 @@ class PropertiesList(generics.ListCreateAPIView):
         if filter_where:
             queryset = queryset.filter(address__address_string__icontains=filter_where)
         
-        # TODO: filter, sort, search
         filter_type = self.request.GET.get('type')
         if filter_type:
             queryset = queryset.filter(property_type__iexact=filter_type)
@@ -44,18 +45,29 @@ class PropertiesList(generics.ListCreateAPIView):
             elif sort_type == "guests":
                 queryset = queryset.order_by('max_guests')
         
-        
         return queryset
 
+
     # TODO: find by available date
-    # def get_availability(self, start_date, end_date):
-        # for each property
+    # def get_available_props(self, queryset, start_date, end_date):
+    #     available_props = []
 
-        # find bookings that relate to property
+    #     avail_start_date = parse_date(start_date)
+    #     avail_end_date = parse_date(end_date)
 
-        # if queried period overlaps with any booking
-
-        # the property is excluded
+    #     # for each property
+    #     for query in queryset:
+    #         # find bookings that relate to property
+    #         bookings = Booking.objects.filter(prop_id=query.id)
+    #         bookings = bookings.filter(
+    #             check_in_date__gte=avail_start_date,
+    #             check_out_date__lte=avail_end_date
+    #         )
+    #         if len(bookings) >= 1:
+    #             break
+    #         available_props.append(query)
+        
+    #     return available_props
 
 
     def get_permissions(self):
