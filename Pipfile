@@ -11,6 +11,11 @@ djangorestframework-simplejwt = "*"
 django-cors-headers = "*"
 python-dotenv = "*"
 googlemaps = "*"
+django-environ = "*"
+dj-database-url = "*"
+django-heroku = "*"
+whitenoise = "*"
+gunicorn = "*"
 
 [dev-packages]
 

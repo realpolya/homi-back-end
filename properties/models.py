@@ -64,9 +64,3 @@ class Address(models.Model):
     def save(self, *args, **kwargs):
         self.address_string = f"{self.street}, {self.city}, {self.get_state_display()}, {self.country}"
         super().save(*args, **kwargs)
-
-    # @property
-    # def address_string(self):
-    #     return f"{self.street}, {self.city}, {self.state}, {self.country}"
-
-

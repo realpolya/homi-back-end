@@ -9,3 +9,4 @@ urlpatterns = [
     path('host/', BookingsHost.as_view(), name='bookings-host'),
     path('prop/<int:prop_id>/', BookingsProperty.as_view(), name='bookings-property'),
 ]
+

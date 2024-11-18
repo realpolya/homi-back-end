@@ -11,15 +11,22 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 import os # brings in operating system
-from dotenv import load_dotenv
-load_dotenv() # load environment variables
+import environ
+import dj_database_url
+import django_heroku
+# from dotenv import load_dotenv
+# load_dotenv() # load environment variables
+
+env = environ.Env()
+environ.Env.read_env()
 
 from pathlib import Path
 from datetime import timedelta
 
 # access environment variables
-GOOGLE_KEY = os.getenv('GOOGLE_KEY')
-SECRET_KEY = os.getenv('SECRET_KEY')
+GOOGLE_KEY = env('GOOGLE_KEY')
+SECRET_KEY = env('SECRET_KEY')
+DATABASE_URL = env('DATABASE_URL')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -31,11 +38,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1'] # TODO: change for deployment
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.herokuapp.com'] # TODO: change for deployment
 
 # CORS settings
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # Frontend port
+    "http://localhost:5173",  # Frontend port
 ]
 
 # Application definition
@@ -64,6 +71,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
 
 # Configuration for django-rest-framework-simplejwt
@@ -98,11 +106,17 @@ WSGI_APPLICATION = 'homi.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'homi',
-    }
+    'default': dj_database_url.config('DATABASE_URL')
 }
+
+# dev database below
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'homi',
+#     }
+# }
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
@@ -163,23 +177,4 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'handlers': {
-#         'console': {
-#             'class': 'logging.StreamHandler',
-#         },
-#     },
-#     'root': {
-#         'handlers': ['console'],
-#         'level': 'INFO',  # Change to INFO, WARNING, etc., as needed
-#     },
-#     'loggers': {
-#         'django': {
-#             'handlers': ['console'],
-#             'level': 'INFO',  # Change to INFO, WARNING, etc., as needed
-#             'propagate': True,
-#         },
-#     },
-# }
+django_heroku.settings(locals())
