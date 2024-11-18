@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Booking
+from properties.models import Property
 from users.serializers import UserSerializer
 from properties.serializers import PropertySerializer
 
@@ -29,3 +30,7 @@ class BookingSerializer(serializers.ModelSerializer):
         if len(credit_card) >= 4:
             representation['credit_card'] = f'**** **** **** {credit_card[-4:]}'
         return representation
+
+
+
+

@@ -2,6 +2,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 from rest_framework import generics
+from rest_framework.response import Response
+
 from datetime import date
 from django.utils.timezone import now
 from django.utils.dateparse import parse_date
@@ -11,6 +13,8 @@ from .models import Booking
 from properties.models import Property
 from users.models import Profile
 from .serializers import BookingSerializer
+
+from .utils import get_availability
 
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsAuthorizedGuestHost, IsAuthorizedGuest
@@ -31,27 +35,6 @@ class BookingsNew(generics.CreateAPIView):
     serializer_class = BookingSerializer
     permission_classes = [IsAuthenticated]
 
-
-    def get_availability(self, listing, check_in, check_out):
-        '''obtain availability of the requested property'''
-
-        if not check_in or not check_out:
-            raise ValueError("Invalid dates")
-        if check_in >= check_out:
-            raise ValueError("Check in date can't be later or equal to check out date")
-
-        overlapping_bookings = Booking.objects.filter(
-            prop_id=listing.id,
-            check_in_date__lte=check_out,
-            check_out_date__gte=check_in
-        )
-
-        if len(overlapping_bookings) != 0:
-            return False
-        
-        return True
-
-
     def perform_create(self, serializer):
 
         # find associated property
@@ -70,7 +53,7 @@ class BookingsNew(generics.CreateAPIView):
         if number_of_guests > listing.max_guests:
             raise ValidationError("Maximum number of guests is exceeded")
 
-        availability_check = self.get_availability(listing, check_in, check_out)
+        availability_check = get_availability(listing, check_in, check_out)
         if not availability_check:
             raise ValidationError("This property is already booked for the requested dates")
 
@@ -102,6 +85,7 @@ class BookingsOne(generics.RetrieveUpdateDestroyAPIView):
     lookup_field = 'id'
     permission_classes = [IsAuthenticated, IsAuthorizedGuestHost]
 
+
     def get_permissions(self):
         # only guest can change or delete their booking
         if self.request.method != 'GET':
@@ -109,7 +93,59 @@ class BookingsOne(generics.RetrieveUpdateDestroyAPIView):
         # only guest and host can view the booking
         return super().get_permissions()
     
-    
+
+    def update(self, request, *args, **kwargs):
+
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=kwargs.get('partial', False))
+
+        try:
+            listing = Property.objects.get(id=instance.prop_id)
+        except ObjectDoesNotExist:
+            raise ValidationError("Property with this ID does not exist")
+
+        # only has logic for when BOTH check in and check out dates are provided
+        if 'check_in_date' in request.data and 'check_out_date' in request.data:
+
+            check_in = parse_date(self.request.data.get('check_in_date'))
+            check_out = parse_date(self.request.data.get('check_out_date'))
+
+            if check_in and check_out:
+
+                availability_check = get_availability(listing, check_in, check_out, instance)
+                if not availability_check:
+                    raise ValidationError("This property is already booked for the requested dates")
+
+                nights = (check_out - check_in).days
+                nights_cost = listing.price_per_night * nights
+            else:
+                raise ValidationError("Dates provided were not parsed properly")
+
+            # update host's profits
+            host_profile = Profile.objects.get(user=listing.user)
+            host_profile.profits -= instance.total_price
+            host_profile.profits += nights_cost
+            host_profile.save()
+
+            cost = nights_cost + listing.cleaning_fee
+
+            instance.check_in_date = check_in
+            instance.check_out_date = check_out
+            instance.total_price = cost
+
+
+        if 'number_of_guests' in request.data:
+
+            number_of_guests = self.request.data.get('number_of_guests')
+            if number_of_guests > listing.max_guests:
+                raise ValidationError("Maximum number of guests is exceeded")
+            
+            instance.number_of_guests = number_of_guests
+        
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=200)
+
 
 
     #TODO: subtract from host's profits if booking is deleted
