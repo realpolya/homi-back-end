@@ -6,4 +6,4 @@ CANCELLATION = (
     ("Super Strict 30 Days", "You will receive half a refund if canceled at least 30 days before check-in; no refund after that."),
     ("Super Strict 60 Days", "You will receive half a refund if canceled at least 60 days before check-in; no refund after that."),
     ("Non-Refundable", "No refund if canceled at any time.")
-    )
+)

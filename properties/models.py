@@ -13,8 +13,8 @@ class Property(models.Model):
     title = models.CharField(max_length=50)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     description = models.TextField(max_length=500)
-    price_per_night = models.IntegerField()
-    max_guests = models.IntegerField()
+    price_per_night = models.IntegerField(default=0)
+    max_guests = models.IntegerField(default=2)
     property_type = models.CharField(
         max_length=20,
         choices=PROPERTY_TYPE,
@@ -59,7 +59,7 @@ class Address(models.Model):
     country = models.CharField(max_length=20, default="USA")
     latitude = models.FloatField(default=0.0)
     longitude = models.FloatField(default=0.0)
-    address_string = models.CharField(max_length=250)
+    address_string = models.CharField(max_length=250, blank=True)
 
     def save(self, *args, **kwargs):
         self.address_string = f"{self.street}, {self.city}, {self.get_state_display()}, {self.country}"

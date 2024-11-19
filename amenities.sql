@@ -1,4 +1,4 @@
-\c homi
+\c d7d1gds47dr9oa
 
 INSERT INTO amenities_amenity (name, image) VALUES
 ('Heating', 'https://www.reshot.com/preview-assets/icons/VJLXFPZWAB/water-heating-VJLXFPZWAB.svg'),
