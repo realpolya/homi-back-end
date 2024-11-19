@@ -39,9 +39,10 @@ class UserSerializer(serializers.ModelSerializer):
         instance.email = validated_data.get('email', instance.email)
         if 'password' in validated_data:
             instance.set_password(validated_data['password'])
-        instance.save()
         instance.first_name = validated_data.get('first_name', instance.first_name)
-        instance.last_name = validated_data.get('last_name', instance.last_name)       
+        instance.last_name = validated_data.get('last_name', instance.last_name) 
+              
+        instance.save()
 
 
         #this is if we are requesting the profile data immediately at sign in. will retreive data, otherwise it'll create the profile model 

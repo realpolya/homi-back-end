@@ -16,11 +16,19 @@ class PhotoSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class PropertySerializer(serializers.ModelSerializer):
-    amenities = AmenitySerializer(many=True, read_only=True)
-    address = AddressSerializer(read_only=True)
-    photos = PhotoSerializer(many=True, read_only=True)
+
+    amenities = AmenitySerializer(many=True)
+    address = AddressSerializer()
+    photos = PhotoSerializer(many=True)
+    first_photo = serializers.SerializerMethodField()
 
     class Meta:
         model = Property
         fields = '__all__'
         read_only_fields = ('user',)
+    
+    def get_first_photo(self, obj):
+        first_photo = obj.photos.first()
+        if first_photo:
+            return PhotoSerializer(first_photo).data
+        return None
