@@ -3,7 +3,7 @@ from .models import Property, Photo, Address
 from amenities.models import Amenity
 
 class AmenitySerializer(serializers.ModelSerializer):
-    '''read-only version of amenity serializer''' 
+    '''read-only version of amenity serializer'''
     class Meta:
         model = Amenity
         fields = ['id', 'name', 'image']
