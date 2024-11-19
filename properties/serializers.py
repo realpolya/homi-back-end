@@ -9,6 +9,7 @@ class AmenitySerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'image']
         read_only_fields = ['id', 'name', 'image']
 
+
 class AddressSerializer(serializers.ModelSerializer):
     
     class Meta:
@@ -16,6 +17,7 @@ class AddressSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ('prop', 'latitude', 'longitude', 'address_string')
         # fields = ('street', 'city', 'state', 'zip_code', 'country', 'latitude', 'longitude', 'address_string')
+
 
 class PhotoSerializer(serializers.ModelSerializer):
     
@@ -25,9 +27,14 @@ class PhotoSerializer(serializers.ModelSerializer):
         read_only_fields = ('prop',)
         # fields = ('link',)
 
+
 class PropertySerializer(serializers.ModelSerializer):
 
-    amenities = AmenitySerializer(many=True)
+    amenities = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=Amenity.objects.all(),
+    )
+    amenities_nested = AmenitySerializer(source='amenities', many=True, read_only=True)
     address = AddressSerializer()
     photos = PhotoSerializer(many=True)
     first_photo = serializers.SerializerMethodField()
