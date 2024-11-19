@@ -148,35 +148,46 @@ class PropertiesOne(generics.RetrieveUpdateDestroyAPIView):
         return super().get_permissions() # default set specified above
     
     def perform_update(self, serializer):
-        address_data = self.request.data.get('address')
-        photos_data = self.request.data.get('photos', [])
-        amenities_data = self.request.data.get('amenities', [])
-        if amenities_data:
-            amenities = Amenity.objects.filter(id__in=amenities_data)
-            if len(amenities) != len(amenities_data):
-                raise ValidationError("Some amenities are not found")
-    
-        with transaction.atomic():
-            property_instance = serializer.save()
-            property_instance.amenities.set(amenities)
-            if address_data:
-                updated_address, created = Address.objects.update_or_create(
-                    prop=property_instance, 
-                    defaults=address_data
-                )
-                try:
-                    coordinates = self.get_coordinates(updated_address.address_string)
-                    updated_address.latitude = coordinates[0]
-                    updated_address.longitude = coordinates[1]
-                except Exception as e:
-                    raise ValidationError(f"Geocoding failed: {str(e)}")
-                    
-                updated_address.save()
-            
-            if photos_data:
-                Photo.objects.filter(prop=property_instance).delete()
-                for photo in photos_data:
-                    Photo.objects.create(prop=property_instance, **photo)
+        try: 
+
+            address_data = self.request.data.get('address')
+            photos_data = self.request.data.get('photos', [])
+            amenities_data = self.request.data.get('amenities', [])
+        
+            with transaction.atomic():
+                property_instance = serializer.save()
+
+                if amenities_data is not None:
+
+                    amenities = Amenity.objects.filter(id__in=amenities_data)
+                    if len(amenities) != len(amenities_data):
+                        raise ValidationError("Some amenities are not found")
+                    property_instance.amenities.set(amenities)
+
+                if address_data is not None:
+                    updated_address, created = Address.objects.update_or_create(
+                        prop=property_instance, 
+                        defaults=address_data
+                    )
+                    try:
+                        coordinates = self.get_coordinates(updated_address.address_string)
+                        updated_address.latitude = coordinates[0]
+                        updated_address.longitude = coordinates[1]
+                    except Exception as e:
+                        raise ValidationError(f"Geocoding failed: {str(e)}")
+                        
+                    updated_address.save()
+                
+                if photos_data is not None:
+                    if not isinstance(photos_data, list):
+                        raise ValidationError("Invalid photos data format. Expected a list of URLs.")
+                    Photo.objects.filter(prop=property_instance).delete()
+                    for photo in photos_data:
+                        Photo.objects.create(prop=property_instance, **photo)
+                
+        except Exception as e:
+
+            raise ValidationError({"error": str(e)})
 
 
 class PropertiesArchived(generics.ListAPIView):
