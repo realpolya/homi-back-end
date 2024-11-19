@@ -35,8 +35,8 @@ class PropertySerializer(serializers.ModelSerializer):
         queryset=Amenity.objects.all(),
     )
     amenities_nested = AmenitySerializer(source='amenities', many=True, read_only=True)
-    address = AddressSerializer()
-    photos = PhotoSerializer(many=True)
+    address = AddressSerializer(read_only=True)
+    photos = PhotoSerializer(many=True, read_only=True)
     first_photo = serializers.SerializerMethodField()
 
     class Meta:
