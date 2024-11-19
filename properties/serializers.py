@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Property, Photo, Address
+from amenities.models import Amenity
 from amenities.serializers import AmenitySerializer
 
 class AddressSerializer(serializers.ModelSerializer):
@@ -20,7 +21,15 @@ class PhotoSerializer(serializers.ModelSerializer):
 
 class PropertySerializer(serializers.ModelSerializer):
 
-    amenities = AmenitySerializer(many=True)
+    # nested serializer in response
+    amenities_objects = AmenitySerializer(source='amenities', many=True, read_only=True)
+
+    # save amenities by ids
+    amenities = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=Amenity.objects.all(),
+        write_only=True
+    )
     address = AddressSerializer()
     photos = PhotoSerializer(many=True)
     first_photo = serializers.SerializerMethodField()
