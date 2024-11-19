@@ -1,7 +1,13 @@
 from rest_framework import serializers
 from .models import Property, Photo, Address
 from amenities.models import Amenity
-from amenities.serializers import AmenitySerializer
+
+class AmenitySerializer(serializers.ModelSerializer):
+    '''read-only version of amenity serializer''' 
+    class Meta:
+        model = Amenity
+        fields = ['id', 'name', 'image']
+        read_only_fields = ['id', 'name', 'image']
 
 class AddressSerializer(serializers.ModelSerializer):
     
@@ -21,15 +27,7 @@ class PhotoSerializer(serializers.ModelSerializer):
 
 class PropertySerializer(serializers.ModelSerializer):
 
-    # nested serializer in response
-    amenities_objects = AmenitySerializer(source='amenities', many=True, read_only=True)
-
-    # save amenities by ids
-    amenities = serializers.PrimaryKeyRelatedField(
-        many=True,
-        queryset=Amenity.objects.all(),
-        write_only=True
-    )
+    amenities = AmenitySerializer(many=True)
     address = AddressSerializer()
     photos = PhotoSerializer(many=True)
     first_photo = serializers.SerializerMethodField()
