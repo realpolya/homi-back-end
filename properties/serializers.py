@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Property, Photo, Address
 from amenities.models import Amenity
+from django.contrib.auth.models import User
 
 class AmenitySerializer(serializers.ModelSerializer):
     '''read-only version of amenity serializer'''
@@ -17,6 +18,15 @@ class AddressSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ('prop', 'latitude', 'longitude', 'address_string')
         # fields = ('street', 'city', 'state', 'zip_code', 'country', 'latitude', 'longitude', 'address_string')
+
+
+class UserSerializer(serializer.ModelSerializer):
+    '''retrieve username for user associated with listing'''
+
+    class Meta:
+        model = User
+        fields = ('id', 'username')
+        read_only_fields = ('id', 'username')
 
 
 class PhotoSerializer(serializers.ModelSerializer):
@@ -38,6 +48,7 @@ class PropertySerializer(serializers.ModelSerializer):
     address = AddressSerializer(read_only=True)
     photos = PhotoSerializer(many=True, read_only=True)
     first_photo = serializers.SerializerMethodField()
+    user_info = UserSerializer(read_only=True)
 
     class Meta:
         model = Property
