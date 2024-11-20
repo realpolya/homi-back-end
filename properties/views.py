@@ -165,10 +165,17 @@ class PropertiesOne(generics.RetrieveUpdateDestroyAPIView):
                     property_instance.amenities.set(amenities)
 
                 if address_data is not None:
+
                     updated_address, created = Address.objects.update_or_create(
                         prop=property_instance, 
                         defaults=address_data
                     )
+
+                    if not created:
+                        for key,value in address_data.items():
+                            setattr(updated_address, key, value)
+                        updated_address.save()
+
                     try:
                         coordinates = self.get_coordinates(updated_address.address_string)
                         updated_address.latitude = coordinates[0]
