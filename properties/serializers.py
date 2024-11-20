@@ -48,7 +48,7 @@ class PropertySerializer(serializers.ModelSerializer):
     address = AddressSerializer(read_only=True)
     photos = PhotoSerializer(many=True, read_only=True)
     first_photo = serializers.SerializerMethodField()
-    user_info = UserSerializer(read_only=True)
+    user_info = UserSerializer(source='user', read_only=True)
 
     class Meta:
         model = Property
