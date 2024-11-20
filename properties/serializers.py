@@ -20,7 +20,7 @@ class AddressSerializer(serializers.ModelSerializer):
         # fields = ('street', 'city', 'state', 'zip_code', 'country', 'latitude', 'longitude', 'address_string')
 
 
-class UserSerializer(serializer.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     '''retrieve username for user associated with listing'''
 
     class Meta:
