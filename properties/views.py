@@ -146,6 +146,23 @@ class PropertiesOne(generics.RetrieveUpdateDestroyAPIView):
         if self.request.method == 'GET':
             return [] # empty set of permissions
         return super().get_permissions() # default set specified above
+
+    def get_coordinates(self, address_string):
+        '''obtain latitude and longitude'''
+        gmaps = googlemaps.Client(key=settings.GOOGLE_KEY)
+        geocode_result = gmaps.geocode(address_string)
+
+        # if address is invalid, return an error
+        if not geocode_result:
+            raise ValidationError("The address provided is invalid")
+        
+        # obtaining coordinates from the geocode function
+        geo = geocode_result[0].get('geometry')
+        geo1 = geo.get('location')
+        lat = geo1.get('lat')
+        lng = geo1.get('lng')
+        coordinates = [lat, lng]
+        return coordinates
     
     def perform_update(self, serializer):
         try: 
