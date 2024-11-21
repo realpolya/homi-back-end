@@ -207,6 +207,7 @@ class PropertiesOne(generics.RetrieveUpdateDestroyAPIView):
                         raise ValidationError("Invalid photos data format. Expected a list of URLs.")
                     Photo.objects.filter(prop=property_instance).delete()
                     for photo in photos_data:
+                        photo = {key: value for key, value in photo.items() if key != 'prop'}
                         Photo.objects.create(prop=property_instance, **photo)
                 
         except Exception as e:
