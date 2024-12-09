@@ -175,7 +175,7 @@ class BookingsHost(generics.ListAPIView):
 class BookingsProperty(generics.ListAPIView):
     '''Bookings of a particular property.'''
     serializer_class = BookingSerializer
-    permission_classes = [IsAuthenticated, IsAuthorizedHost]
+    # permission_classes = [IsAuthenticated, IsAuthorizedHost]
 
     def get_queryset(self):
         prop_id = self.kwargs.get('prop_id')
