@@ -43,7 +43,8 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', '.herokuapp.com'] # TODO: change for 
 # CORS settings
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # Frontend port
-    "https://hilarious-souffle-5decf5.netlify.app"
+    "https://hilarious-souffle-5decf5.netlify.app",
+    "https://homi-realpolya.netlify.app/"
 ]
 
 # Application definition
