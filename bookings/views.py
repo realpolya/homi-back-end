@@ -196,6 +196,7 @@ __all__ = [
     "BookingsList",
     "BookingsNew",
     "UpcomingBookings",
+    "PreviousBookings",
     "BookingsOne",
     "BookingsHost",
     "BookingsProperty"
