@@ -74,6 +74,14 @@ class UpcomingBookings(generics.ListAPIView):
         return Booking.objects.filter(guest=self.request.user, check_in_date__gte=now())
 
 
+class PreviousBookings(generics.ListAPIView):
+    serializer_class = BookingSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Booking.objects.filter(guest=self.request.user, check_out_date__lte=now())
+
+
 class BookingsOne(generics.RetrieveUpdateDestroyAPIView):
     '''View a single booking by id.
     Only a guest and an associated host can view the booking.
